@@ -124,7 +124,19 @@ private final class RemoteMicAppDelegate: NSObject, NSApplicationDelegate, NSMen
         applicationMenu.addItem(quitItem)
         applicationItem.submenu = applicationMenu
         mainMenu.addItem(applicationItem)
+        let windowItem = NSMenuItem()
+        let windowMenu = NSMenu(title: "窗口")
+        let minimizeItem = NSMenuItem(
+            title: "最小化到菜单栏",
+            action: #selector(minimizeToMenuBar(_:)),
+            keyEquivalent: "m"
+        )
+        minimizeItem.target = self
+        windowMenu.addItem(minimizeItem)
+        windowItem.submenu = windowMenu
+        mainMenu.addItem(windowItem)
         NSApp.mainMenu = mainMenu
+        NSApp.windowsMenu = windowMenu
     }
 
     private func configureStatusItem() {
