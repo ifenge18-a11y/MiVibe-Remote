@@ -9,6 +9,13 @@ enum SingleInstancePolicy {
     }
 }
 
+final class MenuBarSettingsWindow: NSWindow {
+    override func miniaturize(_ sender: Any?) {
+        orderOut(sender)
+        NSApp.setActivationPolicy(.accessory)
+    }
+}
+
 @main
 enum RemoteMicApp {
     @MainActor
@@ -264,6 +271,7 @@ private final class RemoteMicAppDelegate: NSObject, NSApplicationDelegate, NSMen
         }
         guard let windowController = settingsWindowController,
               let window = windowController.window else { return }
+        NSApp.setActivationPolicy(.regular)
         windowController.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
@@ -278,9 +286,9 @@ private final class RemoteMicAppDelegate: NSObject, NSApplicationDelegate, NSMen
                 self?.checkForUpdates()
             }
         )
-        let window = NSWindow(
+        let window = MenuBarSettingsWindow(
             contentRect: NSRect(x: 0, y: 0, width: 800, height: 650),
-            styleMask: [.titled, .closable, .resizable],
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )

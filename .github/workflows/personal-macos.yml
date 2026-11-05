@@ -1,0 +1,32 @@
+name: Personal macOS build
+on:
+  push:
+    branches: [codex/menu-bar-wps]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-26
+    defaults:
+      run:
+        working-directory: platforms/macos
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        run: swift test
+      - name: Build independent app
+        run: |
+          ./scripts/build-app.sh
+          app='dist/MiVibe Remote.app'
+          /usr/libexec/PlistBuddy -c 'Set :CFBundleIdentifier com.mivibe.remote.personal' "$app/Contents/Info.plist"
+          /usr/libexec/PlistBuddy -c 'Set :CFBundleDisplayName MiVibe Remote Personal' "$app/Contents/Info.plist"
+          codesign --force --sign - --timestamp=none "$app"
+          codesign --verify --deep --strict "$app"
+          mv "$app" 'dist/MiVibe Remote Personal.app'
+          ditto -c -k --sequesterRsrc --keepParent 'dist/MiVibe Remote Personal.app' dist/MiVibe-Remote-Personal.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MiVibe-Remote-Personal
+          path: platforms/macos/dist/MiVibe-Remote-Personal.zip
+          if-no-files-found: error

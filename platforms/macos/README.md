@@ -71,3 +71,7 @@ ad-hoc 签名。用户首次安装或更新后需要在“隐私与安全性”�
 
 上游完整使用说明见 [UPSTREAM_README.md](UPSTREAM_README.md)，来源与许可证见仓库根目录
 `UPSTREAM.md`、本目录 `COPYRIGHT.md`、`THIRD_PARTY_NOTICES.md` 和 `LICENSE.md`。
+
+### 最小化与 WPS
+
+点击窗口左上角的黄色按钮可将设置窗口隐藏到菜单栏，遥控器服务继续运行。点击菜单栏中的 MiVibe 图标可重新打开窗口；右键图标可退出应用。在“按键”页面可以将按键设为“打开 WPS”（需要已安装 WPS）。
