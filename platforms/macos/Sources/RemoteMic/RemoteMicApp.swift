@@ -9,13 +9,6 @@ enum SingleInstancePolicy {
     }
 }
 
-final class MenuBarSettingsWindow: NSWindow {
-    override func miniaturize(_ sender: Any?) {
-        orderOut(sender)
-        NSApp.setActivationPolicy(.accessory)
-    }
-}
-
 @main
 enum RemoteMicApp {
     @MainActor
@@ -47,7 +40,7 @@ enum RemoteMicApp {
 
 @MainActor
 private final class RemoteMicAppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate,
-    NSMenuItemValidation {
+    NSMenuItemValidation, NSWindowDelegate {
     private let model = BridgeAppModel()
     private var statusItem: NSStatusItem?
     private var statusMenu: NSMenu?
@@ -277,6 +270,22 @@ private final class RemoteMicAppDelegate: NSObject, NSApplicationDelegate, NSMen
         window.makeKeyAndOrderFront(nil)
     }
 
+    @objc private func minimizeToMenuBar(_ sender: Any?) {
+        guard let window = settingsWindowController?.window else { return }
+        window.orderOut(nil)
+        NSApp.setActivationPolicy(.accessory)
+    }
+
+    func windowWillMiniaturize(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow,
+              window === settingsWindowController?.window else { return }
+        DispatchQueue.main.async { [weak self, weak window] in
+            guard let self, let window else { return }
+            if window.isMiniaturized { window.deminiaturize(nil) }
+            self.minimizeToMenuBar(nil)
+        }
+    }
+
     private func makeSettingsWindowController() -> NSWindowController {
         let hostingController = NSHostingController(
             rootView: SettingsView(
@@ -286,12 +295,17 @@ private final class RemoteMicAppDelegate: NSObject, NSApplicationDelegate, NSMen
                 self?.checkForUpdates()
             }
         )
-        let window = MenuBarSettingsWindow(
+        let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 800, height: 650),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
+        window.delegate = self
+        if let minimizeButton = window.standardWindowButton(.miniaturizeButton) {
+            minimizeButton.target = self
+            minimizeButton.action = #selector(minimizeToMenuBar(_:))
+        }
         window.title = "MiVibe Remote"
         window.contentViewController = hostingController
         window.isReleasedWhenClosed = false

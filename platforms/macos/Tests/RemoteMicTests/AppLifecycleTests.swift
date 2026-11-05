@@ -34,6 +34,8 @@ struct AppLifecycleTests {
         #expect(appSource.contains("refreshMenuStatus()\n        showSettings()"))
         #expect(appSource.contains(".miniaturizable"))
         #expect(appSource.contains("NSApp.setActivationPolicy(.accessory)"))
+        #expect(appSource.contains("minimizeButton.action = #selector(minimizeToMenuBar(_:))"))
+        #expect(appSource.contains("func windowWillMiniaturize"))
         #expect(settingsSource.contains("Text(\"退出应用\")"))
         #expect(settingsSource.contains("NSApp.terminate(nil)"))
         #expect(!settingsSource.contains("NavigationSplitView"))
